@@ -3,7 +3,7 @@
  * Copyright 2016 Shockwave-Design - J. & M. Kramer, all rights reserved.
  * See LICENSE.txt for license details.
  */
-namespace Shockwavedesign\Translate\Model\Framework;
+namespace Shockwavedesign\Translation\Model\Framework;
 
 /**
  * Translate library extended by external api translations
@@ -11,6 +11,9 @@ namespace Shockwavedesign\Translate\Model\Framework;
  */
 class Translate extends \Magento\Framework\Translate
 {
+    /** @var \Shockwavedesign\Translation\Model\Framework\App\Language\Dictionary */
+    protected $packModuleDictionary;
+
     public function __construct(
         \Magento\Framework\View\DesignInterface $viewDesign,
         \Magento\Framework\Cache\FrontendInterface $cache,
@@ -24,10 +27,11 @@ class Translate extends \Magento\Framework\Translate
         \Magento\Framework\Filesystem $filesystem,
         \Magento\Framework\App\RequestInterface $request,
         \Magento\Framework\File\Csv $csvParser,
-        \Magento\Framework\App\Language\Dictionary $packDictionary
+        \Magento\Framework\App\Language\Dictionary $packDictionary,
+        \Shockwavedesign\Translation\Model\Framework\App\Language\Dictionary $packModuleDictionary
     )
     {
-        
+        $this->packModuleDictionary = $packModuleDictionary;
         
         parent::__construct($viewDesign, $cache, $viewFileSystem, $moduleList, $modulesReader, $scopeResolver, $translate, $locale, $appState, $filesystem, $request, $csvParser, $packDictionary);
     }
@@ -51,19 +55,55 @@ class Translate extends \Magento\Framework\Translate
     }
 
     /**
-     * @param null       $area
+     * @param null $area
      * @param bool|false $forceReload
      *
      * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function _loadPackModuleTranslation($area = null, $forceReload = false)
     {
         $currentModule = $this->getControllerModuleName();
         $allModulesExceptCurrent = array_diff($this->_moduleList->getNames(), [$currentModule]);
 
-        //$this->loadPackModuleTranslationByModulesList($allModulesExceptCurrent);
-        //$this->loadPackModuleTranslationByModulesList([$currentModule]);
+        $packagePaths = $this->packModuleDictionary->getLanguagePackPathes($this->getLocale());
+
+        foreach ($packagePaths as $packagePath) {
+            $this->loadPackModuleTranslationByModulesList($packagePath, $allModulesExceptCurrent);
+            $this->loadPackModuleTranslationByModulesList($packagePath, [$currentModule]);
+        }
 
         return $this;
+    }
+
+    /**
+     * Load data from module translation files by list of modules
+     *
+     * @param array $modules
+     * @return $this
+     */
+    protected function loadPackModuleTranslationByModulesList($packagePath, array $modules)
+    {
+        foreach ($modules as $module) {
+            $moduleFilePath = $packagePath . DIRECTORY_SEPARATOR . $this->_getPackageModuleTranslationFile($module, $this->getLocale());
+            $this->_addData($this->_getFileData($moduleFilePath));
+        }
+        return $this;
+    }
+
+    /**
+     * Retrieve translation file for module
+     *
+     * @param string $moduleName
+     * @param string $locale
+     * @return string
+     */
+    protected function _getPackageModuleTranslationFile($moduleName, $locale)
+    {
+        $file = $this->_modulesReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_I18N_DIR, $moduleName);
+        $filePath = basename(dirname(dirname($file))) . DIRECTORY_SEPARATOR . basename(dirname($file)) . DIRECTORY_SEPARATOR . basename($file);
+
+        $filePath .= '/' . $locale . '.csv';
+        return $filePath;
     }
 }

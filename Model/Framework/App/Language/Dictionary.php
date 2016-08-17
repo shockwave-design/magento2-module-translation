@@ -4,7 +4,7 @@
  * See LICENSE.txt for license details.
  */
 
-namespace Shockwavedesign\Translate\Model\Framework\App\Language;
+namespace Shockwavedesign\Translation\Model\Framework\App\Language;
 use Magento\Framework\App\Language\ConfigFactory;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Filesystem\Directory\ReadFactory;
@@ -15,7 +15,7 @@ use Magento\Framework\App\Language\Config;
  *
  * @api
  */
-class Dictionary //extends \Magento\Framework\App\Language\Dictionary
+class Dictionary
 {
     /**
      * Paths of all language packages
@@ -73,7 +73,7 @@ class Dictionary //extends \Magento\Framework\App\Language\Dictionary
      * @return array
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function getDictionary($languageCode)
+    public function getLanguagePackPathes($languageCode)
     {
         $languages = [];
         $this->paths = $this->componentRegistrar->getPaths(ComponentRegistrar::LANGUAGE);
@@ -111,8 +111,7 @@ class Dictionary //extends \Magento\Framework\App\Language\Dictionary
         foreach ($packs as $packInfo) {
             /** @var Config $languageConfig */
             $languageConfig = $packInfo['language'];
-            $dictionary = $this->readPackCsv($languageConfig->getVendor(), $languageConfig->getPackage());
-            $result = array_merge($result, $dictionary);
+            $result[] = $this->componentRegistrar->getPath(ComponentRegistrar::LANGUAGE, strtolower($languageConfig->getVendor() . '_' . $languageConfig->getPackage()));
         }
         return $result;
     }
