@@ -8,4 +8,5 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
     <preference for="Magento\Framework\Translate" type="Shockwavedesign\Translation\Model\Framework\Translate" />
     <preference for="Magento\Translation\Model\Json\PreProcessor" type="Shockwavedesign\Translation\Model\Json\PreProcessor" />
+    <preference for="Magento\Framework\Phrase\Renderer\Translate" type="Shockwavedesign\Translation\Model\Framework\Phrase\Renderer\Translate" />
 </config>
