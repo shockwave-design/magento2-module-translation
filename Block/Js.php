@@ -16,10 +16,8 @@ class Js extends \Magento\Translation\Block\Js
      */
     protected $config;
 
-    /**
-     * @var \Magento\Translation\Model\FileManager
-     */
-    private $fileManager;
+    /** @var \Magento\Translation\Model\FileManager */
+    protected $overrideFileManager;
 
     /**
      * Is js translation set to dictionary mode
@@ -43,6 +41,18 @@ class Js extends \Magento\Translation\Block\Js
             return random_int(0, time());
         }
 
-        return $this->fileManager->getTranslationFileTimestamp();
+        return $this->overrideFileManager->getTranslationFileTimestamp();
+    }
+
+    public function __construct(
+        Template\Context $context,
+        Config $config,
+        \Magento\Translation\Model\FileManager $fileManager,
+        array $data
+    )
+    {
+        $this->overrideFileManager = $fileManager;
+
+        parent::__construct($context, $config, $fileManager, $data);
     }
 }
