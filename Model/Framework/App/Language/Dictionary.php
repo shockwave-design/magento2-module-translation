@@ -173,30 +173,4 @@ class Dictionary
         }
         return strcmp($current['key'], $next['key']);
     }
-
-    /**
-     * Read the CSV-files in a language package
-     *
-     * The files are sorted alphabetically, then each of them is read, and results are recorded into key => value array
-     *
-     * @param string $vendor
-     * @param string $package
-     * @return array
-     */
-    private function readPackCsv($vendor, $package)
-    {
-        $path = $this->componentRegistrar->getPath(ComponentRegistrar::LANGUAGE, strtolower($vendor . '_' . $package));
-        $result = [];
-        if (isset($path)) {
-            $directoryRead = $this->directoryReadFactory->create($path);
-            $foundCsvFiles = $directoryRead->search("*.csv");
-            foreach ($foundCsvFiles as $foundCsvFile) {
-                $file = $directoryRead->openFile($foundCsvFile);
-                while (($row = $file->readCsv()) !== false) {
-                    $result[$row[0]] = $row[1];
-                }
-            }
-        }
-        return $result;
-    }
 }
